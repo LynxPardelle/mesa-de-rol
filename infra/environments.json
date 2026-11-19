@@ -1,0 +1,20 @@
+{
+  "development": {
+    "branch": "development",
+    "stage": "development",
+    "samConfigEnv": "development",
+    "stackName": "mesa-de-rol-development"
+  },
+  "testing": {
+    "branch": "testing",
+    "stage": "testing",
+    "samConfigEnv": "testing",
+    "stackName": "mesa-de-rol-testing"
+  },
+  "production": {
+    "branch": "main",
+    "stage": "production",
+    "samConfigEnv": "production",
+    "stackName": "mesa-de-rol-production"
+  }
+}

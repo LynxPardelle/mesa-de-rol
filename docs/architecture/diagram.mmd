@@ -1,0 +1,13 @@
+flowchart LR
+    H["Anfitrión con cuenta"] --> W["Angular móvil"]
+    P["Jugador invitado"] --> W
+    W -->|Disponible en la base| A["HTTP API GET /api/health"]
+    A --> L["Lambda Node.js 24"]
+    W -.->|Siguiente fase OIDC anfitrión| C["Cognito"]
+    W -.->|Ticket breve de un uso| J["Intercambio y membresía"]
+    W -.->|Fase futura autorizada| S["API Gateway WebSocket"]
+    S -.-> R["Lambda comandos y conexión"]
+    J -.-> D["DynamoDB de sesiones y tickets"]
+    R -.->|Versión y recibo atómicos| D
+    D -.->|Publicación posterior al commit| B["Distribución por versión"]
+    B -.-> S

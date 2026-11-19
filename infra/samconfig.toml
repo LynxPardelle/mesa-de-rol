@@ -1,0 +1,25 @@
+version = 0.1
+
+[development.deploy.parameters]
+stack_name = "mesa-de-rol-development"
+resolve_s3 = true
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+fail_on_empty_changeset = false
+parameter_overrides = "Stage=development"
+
+[testing.deploy.parameters]
+stack_name = "mesa-de-rol-testing"
+resolve_s3 = true
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+fail_on_empty_changeset = false
+parameter_overrides = "Stage=testing"
+
+[production.deploy.parameters]
+stack_name = "mesa-de-rol-production"
+resolve_s3 = true
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+fail_on_empty_changeset = false
+parameter_overrides = "Stage=production"

@@ -1,0 +1,127 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: mesa-de-rol health and isolated data foundation.
+
+Parameters:
+  Stage:
+    Type: String
+    Default: development
+    AllowedValues:
+      - development
+      - testing
+      - production
+
+Conditions:
+  IsProduction: !Equals [!Ref Stage, production]
+
+Resources:
+  ProductApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: '$default'
+      AccessLogSettings:
+        DestinationArn: !GetAtt ApiLogGroup.Arn
+        Format: '{"requestId":"$context.requestId","routeKey":"$context.routeKey","status":"$context.status"}'
+      Tags:
+        Product: mesa-de-rol
+        Stage: !Ref Stage
+
+  ApiLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 14
+
+  HealthLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${AWS::StackName}/health'
+      RetentionInDays: 14
+
+  HealthRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: health-logs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !GetAtt HealthLogGroup.Arn
+
+  HealthFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../services/health/
+      Handler: index.handler
+      Runtime: nodejs24.x
+      Architectures:
+        - arm64
+      MemorySize: 128
+      Timeout: 5
+      Role: !GetAtt HealthRole.Arn
+      Environment:
+        Variables:
+          STAGE: !Ref Stage
+          PRODUCT_SLUG: mesa-de-rol
+      LoggingConfig:
+        LogFormat: JSON
+        LogGroup: !Ref HealthLogGroup
+      Events:
+        Health:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ProductApi
+            Path: /api/health
+            Method: GET
+            PayloadFormatVersion: '2.0'
+      Tags:
+        Product: mesa-de-rol
+        Stage: !Ref Stage
+
+  SessionsTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+      SSESpecification:
+        SSEEnabled: true
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      DeletionProtectionEnabled: !If [IsProduction, true, false]
+      TimeToLiveSpecification:
+        AttributeName: expiresAt
+        Enabled: true
+      Tags:
+        - Key: Product
+          Value: mesa-de-rol
+        - Key: Stage
+          Value: !Ref Stage
+
+Outputs:
+  HealthUrl:
+    Description: Public liveness endpoint.
+    Value: !Sub 'https://${ProductApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/api/health'
+  DataTable:
+    Description: Product-owned table reserved for authenticated business handlers.
+    Value: !Ref SessionsTable
