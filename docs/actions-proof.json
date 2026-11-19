@@ -1,0 +1,35 @@
+{
+  "verifiedAt": "2026-11-19",
+  "automaticCi": {
+    "name": "mesa-de-rol",
+    "runId": 44615666729,
+    "url": "https://github.com/LynxPardelle/mesa-de-rol/actions/runs/44615666729",
+    "sha": "51be9786d865da65eabb8b01edccf88d86e122f7",
+    "event": "push",
+    "conclusion": "success"
+  },
+  "rejectedDirectPromotion": {
+    "repo": "mesa-de-rol",
+    "pr": 1,
+    "prUrl": "https://github.com/LynxPardelle/mesa-de-rol/pull/1",
+    "headSha": "51be9786d865da65eabb8b01edccf88d86e122f7",
+    "checkName": "zoo/promotion/production",
+    "appId": 15368,
+    "checkUrl": "https://github.com/LynxPardelle/mesa-de-rol/actions/runs/44615866075/job/135884251681",
+    "checkId": 135884251681,
+    "conclusion": "failure",
+    "blocked": true,
+    "mergeStateStatus": "BLOCKED",
+    "state": "closed",
+    "merged": false,
+    "closedHeadSha": "51be9786d865da65eabb8b01edccf88d86e122f7",
+    "observedAt": "2026-11-19T21:09:52.9233447Z",
+    "error": null,
+    "runUrl": "https://github.com/LynxPardelle/mesa-de-rol/actions/runs/44615866075",
+    "event": "pull_request_target"
+  },
+  "requiredAppId": 15368,
+  "protectionsChanged": false,
+  "temporaryProbeRemoved": true,
+  "positivePromotionEvidence": "GitHub pull request history: development -> testing -> main"
+}
